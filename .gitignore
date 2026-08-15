@@ -1,0 +1,11 @@
+.venv
+config
+dags/__pycache__
+logs
+plugins
+.env
+.python-version
+api.py
+bronze.py
+pyproject.toml
+uv.lock
