@@ -3,13 +3,13 @@ import db
 
 # Classe para ingestão Full Load em batch
 class IngestaoFullBronze:
-    def __init__(self, table, idField, spark):
-        self.table = table
-        self.tableName = f'bronze.climapetropolis.{table}' #Definição do nome da tabela dentro do catalog.database
+    def __init__(self, tabela, idField, spark):
+        self.tabela = tabela
+        self.tableName = f'bronze.climapetropolis.{tabela}' #Definição do nome da tabela dentro do catalog.database
         self.path = f"/Volumes/raw/raw-climapetropolis/full_load/" # Caminho dos arquivos raw
         self.idField = idField # Coluna de IDs
-        self.query = db.import_query(f"{table}.sql") # Importação da query do arquivo imoveis.sql utilizando o método import_query do módulo db.py
-        self.query = self.query.format(table=table) # Format da query para incluir o nome da tabela
+        self.query = db.import_query(f"{tabela}.sql") # Importação da query do arquivo imoveis.sql utilizando o método import_query do módulo db.py
+        self.query = self.query.format(table=tabela) # Format da query para incluir o nome da tabela
         self.spark = spark
 
     def read(self):
@@ -21,7 +21,7 @@ class IngestaoFullBronze:
         # Método que executa as transformações necessárias no dataframe para preparar para ingestão
         
         # Criação da VIEW temporária para transformação com SQL
-        df.createOrReplaceTempView(self.table)
+        df.createOrReplaceTempView(self.tabela)
 
         # Transformação básica (adição da coluna de timestamp da ingestão em UTC-3) utilizando a query formatada
         df_transform = self.spark.sql(self.query)
@@ -45,8 +45,8 @@ class IngestaoFullBronze:
 # Classe de ingestão Full Load com streaming que herda da classe IngestaoFullBronze
 
 class IngestaoFullBronzeStreaming(IngestaoFullBronze):
-    def __init__(self, table, idField, spark):
-        super().__init__(table, idField, spark)
+    def __init__(self, tabela, idField, spark):
+        super().__init__(tabela, idField, spark)
 
         # Definição do checkpoint_path, onde serão a armazenadas as informações utilizadas pela streams
         # Por que usar streaming? -> Evita reprocessamento de arquivos. Se o bucket possuir 1000 arquivos, a stream não vai processar todos a cada execução, e sim os arquivos que não estão presentes nos metadados do checkpoint
@@ -66,7 +66,7 @@ class IngestaoFullBronzeStreaming(IngestaoFullBronze):
         if "_rescued_data" in df.columns:
             df = df.drop("_rescued_data")
             
-        df = self.spark.sql(self.query.format(table = self.table))
+        df = self.spark.sql(self.query.format(table = self.tabela))
     
         # Faz o append puro das novas consultas da API na tabela Delta
         df.write.format("delta").mode("append").saveAsTable(self.tableName)
@@ -75,7 +75,7 @@ class IngestaoFullBronzeStreaming(IngestaoFullBronze):
         (
             df.writeStream
             .foreachBatch(self.transform)
-            .option("checkpointLocation", f"{self.checkpoint_path}/bronze_{self.table}")
+            .option("checkpointLocation", f"{self.checkpoint_path}/bronze_{self.tabela}")
             .trigger(availableNow=True)
             .start()
         )
