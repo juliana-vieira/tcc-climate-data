@@ -1,7 +1,0 @@
-db.py
-ingestors.py
-setup.py
-modulos.egg-info/PKG-INFO
-modulos.egg-info/SOURCES.txt
-modulos.egg-info/dependency_links.txt
-modulos.egg-info/top_level.txt
