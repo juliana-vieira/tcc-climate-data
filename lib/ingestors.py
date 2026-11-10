@@ -66,8 +66,6 @@ class IngestaoFullBronzeStreaming(IngestaoFullBronze):
         if "_rescued_data" in df.columns:
             df = df.drop("_rescued_data")
             
-        df = self.spark.sql(self.query.format(table = self.tabela))
-    
         # Faz o append puro das novas consultas da API na tabela Delta
         df.write.format("delta").mode("append").saveAsTable(self.tableName)
 
