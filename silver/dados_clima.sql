@@ -1,0 +1,22 @@
+SELECT id AS idRegistro,
+       get_json_object(dados_meteorologicos, '$.weather[0].description') as condicaoClima,
+       CAST(get_json_object(dados_meteorologicos, '$.main.temp') AS DOUBLE) AS temperaturaAtual,
+       CAST(get_json_object(dados_meteorologicos, '$.main.feels_like') AS DOUBLE) AS sensacaoTermica,
+       CAST(get_json_object(dados_meteorologicos, '$.main.temp_max') AS DOUBLE) AS tempMax,
+       CAST(get_json_object(dados_meteorologicos, '$.main.temp_min') AS DOUBLE) AS tempMin,
+       CAST(get_json_object(dados_meteorologicos, '$.main.humidity') AS INT) AS umidadeAr,
+       CAST(get_json_object(dados_meteorologicos, '$.clouds.all') AS INT) AS porcentagemNuvens,
+       CAST(get_json_object(dados_meteorologicos, '$.main.pressure') AS DOUBLE) AS pressaoAtmosfericaGeral,
+       CAST(get_json_object(dados_meteorologicos, '$.main.sea_level') AS DOUBLE) AS pressaoAtmosfericaNivelMar,
+       CAST(get_json_object(dados_meteorologicos, '$.main.grnd_level') AS DOUBLE) AS pressaoAtmosfericaNivelSolo,
+       COALESCE(CAST(get_json_object(dados_meteorologicos, '$.rain.1h') AS DOUBLE), 0.0) AS chuvaMilimetrosPorHora,
+       CAST(get_json_object(dados_meteorologicos, '$.visibility') AS INT) AS visibilidadeMetros,
+       CAST(get_json_object(dados_meteorologicos, '$.wind.speed') AS DOUBLE) AS velocidadeVento,
+       CAST(get_json_object(dados_meteorologicos, '$.wind.deg') AS INT) AS direcaoVentoGraus,
+       CAST(get_json_object(dados_meteorologicos, '$.wind.gust') AS DOUBLE) AS rajadaVento,
+       from_utc_timestamp(from_unixtime(CAST(get_json_object(dados_meteorologicos, '$.sys.sunrise') AS BIGINT)), 'America/Sao_Paulo') AS nascerDoSol,
+       from_utc_timestamp(from_unixtime(CAST(get_json_object(dados_meteorologicos, '$.sys.sunset') AS BIGINT)), 'America/Sao_Paulo') as porDoSol,
+       from_utc_timestamp(from_unixtime(CAST(get_json_object(dados_meteorologicos, '$.dt') AS BIGINT)), 'America/Sao_Paulo') AS data_hora_legivel,
+       data_ingestao AS dtIngestao
+       
+FROM bronze.climapetropolis.registros

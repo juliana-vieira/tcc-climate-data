@@ -1,6 +1,6 @@
 SELECT DISTINCT id AS idRegistro,
        nome_bairro AS nomeBairro,
-       latitude AS latitude,
-       longitude AS longitude
-       
+       CAST(latitude AS DOUBLE) AS latitude,
+       CAST(longitude AS DOUBLE) AS longitude
+
 FROM bronze.climapetropolis.registros

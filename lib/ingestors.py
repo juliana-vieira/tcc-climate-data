@@ -84,3 +84,27 @@ class IngestaoFullBronzeStreaming(IngestaoFullBronze):
 
         df = self.read()
         self.save(df)
+
+class IngestaoFullSilver:
+
+    def __init__(self, tabela, spark):
+        self.table = tabela
+        self.spark = spark
+        self.query = db.import_query(f"{tabela}.sql")
+        self.tableName = f"silver.climapetropolis.{tabela}"
+
+    def read(self):
+        query = self.query.format(table=self.table)
+        df = self.spark.sql(self.query)
+        return df
+    
+    def save(self, df):
+        (df.write
+            .format("delta")
+            .mode("append")
+            .option("mergeSchema", "true")
+            .saveAsTable(self.tableName))
+
+    def auto(self):
+        df = self.read()
+        self.save(df)
