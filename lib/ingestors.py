@@ -62,12 +62,18 @@ class IngestaoFullBronzeStreaming(IngestaoFullBronze):
             .load(self.path))     
 
     def transform(self, df, epoch_id):
-        # Remove a coluna de rescued_data caso apareça para evitar erro de schema no append
+        
+        df.createOrReplaceTempView(self.tabela)
+        df = self.spark.sql(self.query.format(table = self.tabela))
+
         if "_rescued_data" in df.columns:
             df = df.drop("_rescued_data")
             
-        # Faz o append puro das novas consultas da API na tabela Delta
-        df.write.format("delta").mode("append").saveAsTable(self.tableName)
+        (df.write
+            .format("delta")
+            .mode("append")
+            .option("mergeSchema", "true")
+            .saveAsTable(self.tableName))
 
     def save(self, df):
         (
