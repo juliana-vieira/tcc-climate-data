@@ -45,13 +45,13 @@ class IngestaoFullBronze:
 # Classe de ingestão Full Load com streaming que herda da classe IngestaoFullBronze
 
 class IngestaoFullBronzeStreaming(IngestaoFullBronze):
-    def __init__(self, tabela, idField, spark):
+    def __init__(self, tabela, idField, spark, checkpoint_path):
         super().__init__(tabela, idField, spark)
 
         # Definição do checkpoint_path, onde serão a armazenadas as informações utilizadas pela streams
         # Por que usar streaming? -> Evita reprocessamento de arquivos. Se o bucket possuir 1000 arquivos, a stream não vai processar todos a cada execução, e sim os arquivos que não estão presentes nos metadados do checkpoint
         # Essas informações são necessárias para que a stream saiba em qual posição parou a última execução, ou seja, somente arquivos novos serão processados
-        self.checkpoint_path = "/Volumes/raw/raw-climapetropolis/full_load/checkpoints/" 
+        self.checkpoint_path = checkpoint_path
        
     def read(self):
         return (self.spark.readStream
